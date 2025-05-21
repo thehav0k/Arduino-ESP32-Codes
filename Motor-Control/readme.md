@@ -1,54 +1,59 @@
-# 🚗 4-Wheel Motor Control Using L298N (Arduino)
+# 🚗 4-Wheel Motor Control with ESP32 & L298N
 
-This project controls a 4-wheel robot chassis using the L298N motor driver. The robot moves forward, backward, turns left and right, and stops in a loop.
+This project demonstrates controlling a 4-wheel robot chassis using an ESP32, an L298N motor driver, and a 12V battery. The robot moves in different directions automatically in a timed sequence.
 
 ## 🧰 Hardware Required
 
-- Arduino (e.g., Uno, Nano, ESP32)
+- ESP32 development board
 - L298N motor driver module
 - 4-wheel robot chassis with 2 DC motors (left & right side)
-- External power supply (for motors)
+- 12V battery (for motor power)
 - Jumper wires
 
-## 🔌 Pin Connections
+## 🔌 Pin Connections (ESP32)
 
-| Motor Driver | Arduino Pin | Function             |
-|--------------|-------------|----------------------|
-| IN1          | 5           | Left motor forward   |
-| IN2          | 21          | Left motor backward  |
-| IN3          | 18          | Right motor forward  |
-| IN4          | 19          | Right motor backward |
+| Motor Driver | ESP32 Pin | Function             |
+|--------------|-----------|----------------------|
+| IN1          | 5         | Left motor forward   |
+| IN2          | 21        | Left motor backward  |
+| IN3          | 18        | Right motor forward  |
+| IN4          | 19        | Right motor backward |
 
-> ⚠️ Adjust the pin numbers if using a different board (e.g., Uno does not have pin 21 or 18).
+> ✅ Make sure your ESP32 board supports all the listed GPIO pins.
 
-## 🧠 How It Works
+## ⚡ Power Setup
 
-The robot performs the following sequence repeatedly:
-1. Move **forward** for 2 seconds
-2. Move **backward** for 2 seconds
-3. Turn **left** for 1 second
-4. Turn **right** for 1 second
-5. **Stop** for 2 seconds
+- **Motor Power (12V):** Connect your 12V battery to the `VCC` and `GND` of the L298N module (do **not** power motors from the ESP32).
+- **Logic Power (5V):** Use the onboard 5V output from the L298N to power the ESP32 (optional; use with caution and a voltage regulator if needed).
+- Connect **all grounds together** (ESP32 GND to L298N GND and battery GND).
 
-## 📜 Code Explanation
+## 🧠 Code Behavior
 
-Functions:
-- `forward()`: Both motors move forward.
-- `backward()`: Both motors move backward.
-- `turnLeft()`: Only right motor runs forward.
-- `turnRight()`: Only left motor runs forward.
-- `stopMotors()`: All motors stop.
+The robot performs the following movements in a loop:
+1. Moves **forward** for 2 seconds
+2. Moves **backward** for 2 seconds
+3. Turns **left** for 1 second
+4. Turns **right** for 1 second
+5. **Stops** for 2 seconds
 
-## 🚀 Uploading the Code
+## 📜 Function Overview
 
-1. Open the `.ino` file in Arduino IDE.
-2. Select the correct board and COM port.
-3. Click **Upload**.
+- `forward()`: Moves both motors forward
+- `backward()`: Moves both motors backward
+- `turnLeft()`: Runs only right motor forward
+- `turnRight()`: Runs only left motor forward
+- `stopMotors()`: Stops all motors
 
-## 📁 File
+## 🚀 Upload Instructions
 
-Save your code as `motor_control.ino` in a folder of the same name.
+1. Open the `motor_control.ino` file in Arduino IDE or VS Code (PlatformIO).
+2. Select the correct **ESP32 board** and COM port.
+3. Click **Upload** to flash the code.
+
+## 📁 File Name
+
+Ensure your code file is named `motor_control.ino` and placed in a folder of the same name.
 
 ---
 
-Made with ❤️ for robotics experimentation.
+🔋 Powered by a 12V battery and controlled by an ESP32 for responsive robotic motion.
