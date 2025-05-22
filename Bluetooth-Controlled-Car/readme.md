@@ -1,7 +1,6 @@
+# 🚗 ESP32 Bluetooth Controlled Car with LED Indicators
 
-# 🚗 ESP32 Bluetooth Controlled Car
-
-This project allows you to control a 4-wheel car using an ESP32 and its **built-in Bluetooth**. You can send commands from your phone using any **Bluetooth Serial Terminal** app to move the car forward, reverse, turn, or stop.
+This project allows you to control a 4-wheel car using an **ESP32 with built-in Bluetooth**. It supports forward, reverse, left, right, and stop commands sent over Bluetooth. In addition, **LED indicators** are used for visual feedback based on the direction.
 
 ---
 
@@ -10,14 +9,16 @@ This project allows you to control a 4-wheel car using an ESP32 and its **built-
 - ESP32 (with built-in Bluetooth)
 - L298N Motor Driver
 - 4 DC Motors (2 on left, 2 on right – wired in parallel)
-- Power Source (Battery pack, e.g. 2S Li-ion 7.4V–12V)
+- Red LED (for right turn indication)
+- Green LED (for left turn indication)
+- Power Source (Battery pack, 7.4V–12V)
 - Jumper wires
 
 ---
 
-## 🔌 Motor Driver Connections
+## 🔌 Pin Configuration
 
-Connect the L298N motor driver to the ESP32 as follows:
+### 🔧 ESP32 to Motor Driver (L298N):
 
 | L298N Pin     | ESP32 GPIO | Description              |
 |---------------|------------|--------------------------|
@@ -25,29 +26,29 @@ Connect the L298N motor driver to the ESP32 as follows:
 | IN2           | GPIO 21    | Left motor direction 2   |
 | IN3           | GPIO 18    | Right motor direction 1  |
 | IN4           | GPIO 19    | Right motor direction 2  |
-| ENA (jumpered)| Powered    | Left motor enable        |
-| ENB (jumpered)| Powered    | Right motor enable       |
+| ENA (jumpered)| Powered    | Enable left motors       |
+| ENB (jumpered)| Powered    | Enable right motors      |
 | VCC           | 12V        | Motor power supply       |
 | GND           | Common GND | Shared with ESP32 ground |
-| 5V            | To ESP32 VIN | **⚠️ Used to power ESP32** (see warning below) |
+| 5V            | To ESP32 VIN | ⚠️ Used to power ESP32 (see warning) |
 
-> 🧠 **Motor Wiring Tip:**  
-> Connect motors in parallel:  
-> - Left side motors → OUT1 and OUT2  
-> - Right side motors → OUT3 and OUT4
+### 💡 LED Connections:
+
+| LED         | ESP32 GPIO | Behavior                     |
+|-------------|------------|------------------------------|
+| Red LED     | GPIO 2     | On when turning **right**    |
+| Green LED   | GPIO 15    | On when turning **left**     |
+| Both LEDs   | Blinking   | While moving **forward/reverse** |
 
 ---
 
 ## ⚠️ Powering ESP32 from L298N
 
-You can use the **5V output from the L298N to power the ESP32** by connecting it to the **VIN pin** of the ESP32 **only if**:
-- The L298N is supplied with 7.4V–12V on its `VCC` pin
-- The onboard 5V regulator is present and the **5V_EN jumper is installed**
+You can power the ESP32 from the **5V pin** of the L298N **only if**:
+- The L298N is supplied with 7.4–12V on `VCC`
+- The onboard voltage regulator and **5V jumper are present**
 
-### ❗ Warning:
-- **Always measure the 5V pin with a multimeter** before connecting to ESP32.
-- Do **not** use the 5V pin if your L298N has no regulator or the 5V jumper is removed.
-- ESP32 can be damaged by unstable or incorrect voltage levels.
+> ❗ **Warning**: Always check the 5V pin voltage before connecting to the ESP32’s VIN. An unstable supply can damage your ESP32.
 
 ---
 
@@ -55,49 +56,52 @@ You can use the **5V output from the L298N to power the ESP32** by connecting it
 
 Once connected via Bluetooth, send the following single-character commands:
 
-| Command | Action     |
-|---------|------------|
-| `F`     | Forward    |
-| `B`     | Reverse    |
-| `L`     | Turn Left  |
-| `R`     | Turn Right |
-| `S`     | Stop       |
+| Command | Action     | LED Behavior                    |
+|---------|------------|----------------------------------|
+| `F`     | Forward    | Both LEDs blink                 |
+| `B`     | Reverse    | Both LEDs blink                 |
+| `L`     | Turn Left  | Green LED ON                    |
+| `R`     | Turn Right | Red LED ON                      |
+| `S`     | Stop       | Both LEDs OFF                   |
 
 ---
 
 ## 📲 How to Use
 
 ### On **Android**:
-1. Install **Bluetooth Serial Controller** or **Serial Bluetooth Terminal** from the Play Store.
+1. Install **Bluetooth Serial Controller** or **Serial Bluetooth Terminal** from Play Store.
 2. Power on your ESP32 and search for Bluetooth devices.
-3. Pair with the device named `ESP32-Car` (default name).
-4. Open the app, connect to `ESP32-Car`, and use the terminal or button panel to send commands.
+3. Pair with the device named `ESP32-Car`.
+4. Open the app, connect to `ESP32-Car`, and send commands using the terminal or custom buttons.
 
 ### On **iOS**:
-> ⚠️ iOS does **not support Classic Bluetooth SPP (Serial Port Profile)**, which ESP32 uses by default.
+> ⚠️ iOS does **not support Classic Bluetooth SPP**, which ESP32 uses by default.
 
-#### Alternatives for iOS:
-- **Use a Bluetooth Low Energy (BLE) solution**:
-  - Modify the code to use BLE instead of Serial Bluetooth.
-  - Use a compatible app like **LightBlue Explorer** or **nRF Connect** to interact with your ESP32 BLE services.
-
-> 🛠️ BLE is more iOS-compatible, but requires more complex setup and coding.
+#### To support iOS:
+- Modify the project to use **Bluetooth Low Energy (BLE)**.
+- Use apps like **nRF Connect** or **LightBlue Explorer** to communicate with BLE services.
 
 ---
 
-## 🧠 Code Summary
+## 🧠 How It Works
 
-The ESP32 listens for a character via Bluetooth and drives the motors accordingly using digital signals to the L298N driver. Motor direction is controlled by setting the proper logic levels to the input pins.
+- The ESP32 listens for commands via Bluetooth.
+- Based on the command, it drives the motors via the L298N driver.
+- LEDs provide movement feedback:
+  - Forward/Reverse → blink both LEDs.
+  - Left turn → green LED ON.
+  - Right turn → red LED ON.
+  - Stop → all LEDs OFF.
 
 ---
 
-## 📷 Preview / Demo
+## 📷 Demo
 
-*(Add images or videos of your car in action here)*
+*(Add a picture or video showing the car and LED indicators in action)*
 
 ---
 
 ## 📎 Notes
 
-- Ensure motor power supply is separate from ESP32 USB power (unless safely using 5V from L298N).
-- Be cautious while testing — the car may move quickly on hard surfaces.
+- Make sure all grounds (motor power, ESP32, L298N) are connected.
+- You can expand this project by adding more sensors (ultrasonic, IR, etc.) or moving to BLE for iOS support.
