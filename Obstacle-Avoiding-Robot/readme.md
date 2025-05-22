@@ -1,78 +1,74 @@
-# 🤖 ESP32 Obstacle-Avoiding Car (Sensor at Back)
+# 🤖 ESP32 Autonomous Reverse Car with Ultrasonic Sensor (Back Mounted)
 
-This project creates a simple autonomous car using an **ESP32**, an **L298N motor driver**, and an **ultrasonic sensor mounted at the rear**. The car **moves in reverse as its primary motion**, checks the distance behind it, and **stops or turns right** if an obstacle is detected too close.
-
----
-
-## 🛠️ Hardware Components
-
-- ESP32 board
-- L298N motor driver
-- 4 DC motors (2 on each side)
-- HC-SR04 ultrasonic sensor
-- Power source (battery pack, 7.4V–12V)
-- Jumper wires
-- Chassis for mounting components
+This project implements a **self-navigating reverse-moving car** using an ESP32, L298N motor driver, and an ultrasonic sensor mounted at the **back**. The car safely reverses until it detects an obstacle behind it. It then stops and turns right to avoid collision.
 
 ---
 
-## 🔌 Wiring Connections
+## 🛠️ Components Required
 
-### 🔧 ESP32 to L298N Motor Driver
+- ESP32 development board
+- L298N motor driver module
+- 4x DC motors (chassis mounted)
+- HC-SR04 ultrasonic distance sensor
+- Power supply (7.4V to 12V recommended for motors)
+- Jumper wires and breadboard (or soldered connections)
+- Chassis (robot body)
 
-| L298N Pin     | ESP32 GPIO | Description              |
-|---------------|------------|--------------------------|
-| IN1           | GPIO 5     | Left motor direction 1   |
-| IN2           | GPIO 21    | Left motor direction 2   |
-| IN3           | GPIO 18    | Right motor direction 1  |
-| IN4           | GPIO 19    | Right motor direction 2  |
-| ENA (jumpered)| Powered    | Enable left motors       |
-| ENB (jumpered)| Powered    | Enable right motors      |
-| VCC           | 12V        | Motor power input        |
-| GND           | Common GND | Connect to ESP32 GND     |
-| 5V            | To ESP32 VIN | ⚠️ Only if safe (see power warning below) |
+---
 
-### 🔧 ESP32 to HC-SR04 Ultrasonic Sensor
+## 🔌 Wiring Diagram
+
+### Motor Driver (L298N) to ESP32
+
+| L298N Pin     | ESP32 GPIO | Function                    |
+|---------------|------------|-----------------------------|
+| IN1           | GPIO 5     | Left motor direction        |
+| IN2           | GPIO 21    | Left motor direction        |
+| IN3           | GPIO 18    | Right motor direction       |
+| IN4           | GPIO 19    | Right motor direction       |
+| ENA / ENB     | Jumpered   | Enable left/right motors    |
+| GND           | GND        | Common ground with ESP32    |
+| 5V            | VIN of ESP32 (⚠️ Warning below) |
+
+### Ultrasonic Sensor (HC-SR04) to ESP32
 
 | HC-SR04 Pin | ESP32 GPIO | Description       |
 |-------------|------------|-------------------|
-| VCC         | 5V         | Power supply      |
+| VCC         | 5V         | Power input       |
 | GND         | GND        | Ground            |
 | TRIG        | GPIO 15    | Trigger pin       |
-| ECHO        | GPIO 2     | Echo response pin |
-
-> 💡 **Sensor Mounting**: The ultrasonic sensor is mounted at the **back** of the car. The vehicle drives in **reverse**, using this sensor as a **"front-facing eye"**.
+| ECHO        | GPIO 2     | Echo pin          |
 
 ---
 
-## ⚠️ Powering ESP32
+## ⚠️ ESP32 Power Warning
 
-You may power the ESP32 from the **5V pin of the L298N** only if:
-- L298N is powered with 7.4V–12V on its VCC
-- The onboard 5V regulator is present
-- The **5V_EN jumper is installed**
+You can power the ESP32 via the 5V pin **only if**:
+- L298N is powered from a 7.4–12V battery.
+- The onboard 5V regulator is working and outputs a stable 5V.
+- The 5V output is measured and verified before connecting to ESP32.
 
-### ❗ Warning:
-- Measure voltage with a multimeter before connecting!
-- Do **not** connect directly if 5V is unstable or unregulated.
+❌ **Do not connect unregulated 5V directly to ESP32** — it may damage the board.
 
 ---
 
-## 🧠 Behavior
+## 🔁 Behavior Overview
 
-- The car **moves in reverse** by default.
-- If the sensor (at the back) detects an object **closer than 20 cm**, the car:
-  1. **Stops**
-  2. **Waits 500ms**
-  3. **Turns right** to avoid the obstacle
-- Then resumes reverse driving.
+- Car moves **in reverse** using `reverse()` function.
+- An ultrasonic sensor on the **back** monitors rear distance.
+- If distance drops below **20 cm**, the car:
+  - Stops for 500ms
+  - Turns right for 600ms
+  - Resumes reversing
+- Distance values are printed via the serial monitor.
 
 ---
 
 ## 📟 Serial Monitor Output
 
-You can monitor the distance readings via the Serial Monitor at **9600 baud**:
+Run the Serial Monitor at **9600 baud** to see the following:
 
 ```text
 Front (via reverse) Distance: 34 cm
 Front (via reverse) Distance: 12 cm
+Invalid distance reading. Skipping...
