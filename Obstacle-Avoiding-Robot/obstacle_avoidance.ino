@@ -4,7 +4,7 @@
 #define IN3 18
 #define IN4 19
 
-// Ultrasonic sensor pins (sensor at back)
+// Ultrasonic sensor pins
 #define TRIG_PIN 15
 #define ECHO_PIN 2
 
@@ -27,23 +27,31 @@ void setup() {
 void loop() {
   distance = getDistance();
 
+  // Ignore invalid readings
+  if (distance == -1) {
+    Serial.println("Invalid distance reading. Skipping...");
+    stopMotors();
+    delay(200);
+    return;
+  }
+
   Serial.print("Front (via reverse) Distance: ");
   Serial.print(distance);
   Serial.println(" cm");
 
   if (distance > 20) {
-    reverse();  // Move "forward" using reverse motion
+    reverse();  // Safe to move
   } else {
     stopMotors();
     delay(500);
-    turnRight();  // Try turning when too close
+    turnRight();
     delay(600);
   }
 
   delay(100);
 }
 
-// Measure distance from ultrasonic sensor (mounted at back)
+// Measure and filter ultrasonic distance
 int getDistance() {
   digitalWrite(TRIG_PIN, LOW);
   delayMicroseconds(2);
@@ -51,11 +59,19 @@ int getDistance() {
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
 
-  duration = pulseIn(ECHO_PIN, HIGH);
-  return duration * 0.034 / 2;  // Convert to cm
+  duration = pulseIn(ECHO_PIN, HIGH, 30000);  // Timeout after 30ms (~5m max)
+
+  if (duration == 0) return -1;  // No echo received
+
+  int dist = duration * 0.034 / 2;
+
+  // Filter out distances that are too small or too large
+  if (dist < 2 || dist > 300) return -1;
+
+  return dist;
 }
 
-// Motor movement functions
+// Movement functions
 void forward() {
   digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
